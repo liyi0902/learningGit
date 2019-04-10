@@ -1,1 +1,2 @@
 So now it is an empty file except this line.
+Then it has two lines.
