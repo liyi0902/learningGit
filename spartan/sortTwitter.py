@@ -44,7 +44,7 @@ def readTwitter(path,partition):
 def dealTwitter(line):
     twitterInfo=[]
     goodData = False
-    print(line)
+    line=line.encode('utf8')
     if line[0] == '{' and line[-2] == '}' and len(line) > 3:
         line = line[:-1]
         goodData = True
