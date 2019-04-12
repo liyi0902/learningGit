@@ -28,7 +28,8 @@ def seperate(path, mpiSize):
             partition.append([gridStart,gridEnd-gridStart])
     return partition
 
-def readTwitter(path,partition):
+def readTwitter(path,partitionList):
+    partition=partitionList[0]
     twitterPost=[]
     with open(path, 'rb') as f:
         f.seek(partition[0])
