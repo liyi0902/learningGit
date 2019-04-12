@@ -11,7 +11,7 @@ def seperate(path, mpiSize):
     fileEnd=os.path.getsize(path)
     gridSize=fileEnd//mpiSize
     partition=[]
-    with open(path,'r',encoding='utf8') as f:
+    with open(path,'rb',encoding='utf8') as f:
         gridEnd = f.tell()
         while True:
             if fileEnd-gridEnd<2*gridSize:
@@ -25,7 +25,7 @@ def seperate(path, mpiSize):
 
 def readTwitter(path,partition):
     twitterPost=[]
-    with open(path, encoding='utf8') as f:
+    with open(path, 'rb',encoding='utf8') as f:
         f.seek(partition[0])
         while True:
             if f.tell()>=partition[0]+partition[1]:
