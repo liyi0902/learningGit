@@ -14,7 +14,7 @@ def seperate(path, mpiSize):
     with open(path,'r',encoding='utf8') as f:
         gridEnd = f.tell()
         while True:
-            if fileEnd-gridEnd<2*gridSize():
+            if fileEnd-gridEnd<2*gridSize:
                 partition.append(gridEnd,fileEnd)
             gridStart=gridEnd
             f.seek(gridSize,1)
