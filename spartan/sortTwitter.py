@@ -192,25 +192,7 @@ def countNum(region,twitterPost):
                     if isExist==0:
                         region[key]['hashtag'].append([tag,1])
                     region[key]['tagSum']+=1
-            # for area in region:
-            #     if entry[2]==area[0]:
-            #         area[2]+=1
-            #         for tag in hashtags:
-            #             isExist=0
-            #             for hashtag in area[3]:
-            #                 if tag==hashtag[0]:
-            #                     hashtag[1]+=1
-            #                     isExist=1
-            #             if isExist==0:
-            #                 area[3].append([tag,1])
-            #             area[4]+=1
     return region
-
-#Order Grids by the number of twitter within
-def orderPost(region):
-    regionSorted=sorted(region, key=lambda k:region[k]['twitterNum'],reverse=True)
-    # print ('sort the region:',regionSorted)
-    return regionSorted
 
 #Order hashtags by numbers for each Grid
 def orderHashtags(region):
@@ -300,47 +282,29 @@ comm=MPI.COMM_WORLD
 comm_rank=comm.Get_rank()
 comm_size=comm.Get_size()
 file_path='melbGrid.json'
-file_path2='smallTwitter.json'
+file_path2='bigTwitter.json'
 region=extractFromGrid(file_path)
-# for entry in region:
-#     print (entry)
 if comm_size==1:
     twitterPost = extractFromTwitter(file_path2)
-    # readTime=time.time()-start
-    # print ('read time is:',readTime)
     region=countNum(region, twitterPost)
-    # countTime=time.time()-readTime
-    # print('count region cost time:',countTime)
-    #region=countHashtags(region, twitterPost)
     regionList=sorted(region, key=lambda k:region[k]['twitterNum'],reverse=True)
-    # sortTime=time.time()-countTime
-    # print('sort region time is:',sortTime)
     region = orderHashtags(region)
-    # orderTime=time.time()-sortTime
-    # print('order hashtags cost:',orderTime)
     output(region,regionList)
 else:
     if comm_rank==0:
         partition=seperate(file_path2,comm_size)
         print (len(partition))
-        # twitterPost=extractFromTwitter(file_path2)
-        # readTime=time.time()-start
-        # print ('read time is:',readTime)
-        # twitterData=divideTwitter(twitterPost, comm_size)
     else:
-        twitterData=[]
         partition=[]
     try:
-        # twitterData=comm.scatter(twitterData, root=0)
         partition=comm.scatter(partition,root=0)
     except:
         print('scatter goes wrong.')
         sys.exit(0)
+    start=time.time()
     twitterPost=readTwitter(file_path2, partition)
-    # began=time.time()
+    readTime=time.time()-start
     region=countNum(region, twitterPost)
-    # countTime = time.time() - began
-    # print('count region cost time:', countTime)
     try:
         region=comm.gather(region, root=0)
     except:
@@ -348,14 +312,7 @@ else:
         sys.exit(0)
     if comm_rank==0:
         region=rearrangeRegion(region)
-        # arrangeTime=time.time()-countTime
-        # print('rearrange time is:',arrangeTime)
-        # print (len(region))
         regionList=sorted(region, key=lambda k:region[k]['twitterNum'],reverse=True)
-        # sortTime = time.time() - arrangeTime
-        # print('sort region time is:', sortTime)
         region=orderHashtags(region)
-        # orderTime = time.time() - sortTime
-        # print('order hashtags cost:', orderTime)
         output(region,regionList)
 sys.exit(0)
