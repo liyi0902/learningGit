@@ -44,7 +44,6 @@ def readTwitter(path,partition):
 def dealTwitter(line):
     twitterInfo=[]
     goodData = False
-    line=line.encode('utf8')
     if line[0] == '{' and line[-2] == '}' and len(line) > 3:
         line = line[:-1]
         goodData = True
@@ -53,7 +52,6 @@ def dealTwitter(line):
         goodData = True
     if goodData:
         js2 = json.loads(line)
-        print(js2)
         if js2['doc']['coordinates'] == None:
             return None
         else:
