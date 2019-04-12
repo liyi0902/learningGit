@@ -34,7 +34,7 @@ def readTwitter(path,partition):
         while True:
             if f.tell()>=partition[0]+partition[1]:
                 break
-            line=f.readline().decode('utf8')
+            line=f.readline().decode('utf-8')
             print(type(line))
             twitterInfo=dealTwitter(line)
             # print(twitterInfo)
@@ -48,9 +48,11 @@ def dealTwitter(line):
     if line[0] == '{' and line[-2] == '}' and len(line) > 3:
         line = line[:-1]
         goodData = True
+        print('line is good')
     elif line[0] == '{' and line[-3] == '}' and len(line) > 3:
         line = line[:-2]
         goodData = True
+        print('line is good')
     if goodData:
         js2 = json.loads(line)
         if js2['doc']['coordinates'] == None:
