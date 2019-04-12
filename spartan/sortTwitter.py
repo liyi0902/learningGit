@@ -10,13 +10,14 @@ import os
 def seperate(path, mpiSize):
     fileEnd=os.path.getsize(path)
     gridSize=fileEnd//mpiSize
+    overFlow=fileEnd%mpiSize
     print('fileEnd:',fileEnd)
     print('gridSize:',gridSize)
     partition=[]
     with open(path,'rb') as f:
         gridEnd = f.tell()
         while True:
-            if fileEnd-gridEnd<2*gridSize:
+            if fileEnd-gridEnd<gridSize+overFlow:
                 partition.append([gridEnd,fileEnd-gridEnd])
                 break
             gridStart=gridEnd
