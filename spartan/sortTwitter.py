@@ -50,7 +50,6 @@ def dealTwitter(line):
         line = line[:-1]
         goodData = True
     elif line[0] == '{' and line[-1] == '}' and len(line) > 3:
-        line = line[:-2]
         goodData = True
     if goodData:
         js2 = json.loads(line)
