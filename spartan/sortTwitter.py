@@ -199,7 +199,7 @@ def orderHashtags(region):
     for key in region:
         # print ('now hashtags are:',region[key]['hashtag'])
         tagList=region[key]['hashtag']
-        tagList=tagList.sorted(tagList,key=lambda k:tagList[k][1])
+        tagList=sorted(tagList,key=lambda k:tagList[k][1])
         region[key]['hashtag']=tagList
         # if len(tagList)!=0:
         #     i=0
