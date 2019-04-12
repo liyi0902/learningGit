@@ -45,12 +45,12 @@ def readTwitter(path,partition):
 def dealTwitter(line):
     twitterInfo=[]
     goodData = False
-    print(line)
+    line.strip()
     if line[0] == '{' and line[-2] == '}' and len(line) > 3:
         line = line[:-1]
         goodData = True
         print('line is good')
-    elif line[0] == '{' and line[-3] == '}' and len(line) > 3:
+    elif line[0] == '{' and line[-1] == '}' and len(line) > 3:
         line = line[:-2]
         goodData = True
         print('line is good')
