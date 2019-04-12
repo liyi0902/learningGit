@@ -10,6 +10,8 @@ import os
 def seperate(path, mpiSize):
     fileEnd=os.path.getsize(path)
     gridSize=fileEnd//mpiSize
+    print('fileEnd:',fileEnd)
+    print('gridSize:',gridSize)
     partition=[]
     with open(path,'rb') as f:
         gridEnd = f.tell()
@@ -17,7 +19,7 @@ def seperate(path, mpiSize):
             if fileEnd-gridEnd<2*gridSize:
                 partition.append([gridEnd,fileEnd])
             gridStart=gridEnd
-            f.seek(gridSize,1)
+            f.seek(gridSize, 1)
             f.readline()
             gridEnd=f.tell()
             partition.append([gridStart,gridEnd-gridStart])
