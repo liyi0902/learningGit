@@ -200,7 +200,7 @@ def orderHashtags(region):
         # print ('now hashtags are:',region[key]['hashtag'])
         tagList=region[key]['hashtag']
         tagList=sorted(tagList,key=lambda k:k[1],reverse=True)
-        # region[key]['hashtag']=tagList
+        region[key]['hashtag']=tagList
     return region
 
 #the object to be scattered needs to be the same size of processor size
