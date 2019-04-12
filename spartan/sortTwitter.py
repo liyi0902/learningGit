@@ -5,6 +5,62 @@ import sys
 import json
 from mpi4py import MPI
 import time
+import os
+
+def seperate(path, mpiSize):
+    fileEnd=os.path.getsize(path)
+    gridSize=fileEnd//mpiSize
+    partition=[]
+    with open(path,'r',encoding='utf8') as f:
+        gridEnd = f.tell()
+        while True:
+            if fileEnd-gridEnd<2*gridSize():
+                partition.append(gridEnd,fileEnd)
+            gridStart=gridEnd
+            f.seek(gridSize,1)
+            f.readline()
+            gridEnd=f.tell()
+            partition.append([gridStart,gridEnd-gridStart])
+    return partition
+
+def readTwitter(path,partition):
+    twitterPost=[]
+    with open(path, encoding='utf8') as f:
+        f.seek(partition[0])
+        while True:
+            if f.tell()>=partition[0]+partition[1]:
+                break
+            line=f.readline()
+            twitterInfo=dealTwitter(line)
+            if twitterInfo:
+                twitterPost.append(twitterInfo)
+    return twitterPost
+
+def dealTwitter(line):
+    twitterInfo=[]
+    goodData = False
+    if line[0] == '{' and line[-2] == '}' and len(line) > 3:
+        line = line[:-1]
+        goodData = True
+    elif line[0] == '{' and line[-3] == '}' and len(line) > 3:
+        line = line[:-2]
+        goodData = True
+    if goodData:
+        js2 = json.loads(line)
+        if js2['doc']['coordinates'] == None:
+            return None
+        else:
+            twitteCoordinate = js2['doc']['coordinates']['coordinates']
+            hashtag = js2['doc']['entities']['hashtags']
+            hashtags=[]
+            for j in hashtag:
+                tag = j['text'].encode('utf8')  # some words are not utf-8 type, will cause can-not-output error
+                tag = tag.decode('utf8')  # change tytes type to str
+                tag = tag.lower()  # charactor insensitive
+                tag = '#' + tag
+                hashtags.append(tag)
+            twitterInfo=[twitteCoordinate, hashtags, None]
+    return twitterInfo
 
 def extractFromGrid(file_path):
     #data structure example:[[id,[coordinates],twitterCount,[[hashtage,count],...],tagSum],...]
@@ -28,6 +84,7 @@ def extractFromGrid(file_path):
     #print region
     return region
 
+#now this function is just used for 1 core 1 task:
 def extractFromTwitter(file_path):
     #data structure example:[[[coordinates],[hashtages],[areaId]],....]
     # read tinyTwitter.json
@@ -258,19 +315,23 @@ if comm_size==1:
     output(region,regionList)
 else:
     if comm_rank==0:
-        twitterPost=extractFromTwitter(file_path2)
-        readTime=time.time()-start
-        print ('read time is:',readTime)
-        twitterData=divideTwitter(twitterPost, comm_size)
+        partition=seperate(file_path2,comm_size)
+        # twitterPost=extractFromTwitter(file_path2)
+        # readTime=time.time()-start
+        # print ('read time is:',readTime)
+        # twitterData=divideTwitter(twitterPost, comm_size)
     else:
         twitterData=[]
+        partition=[]
     try:
-        twitterData=comm.scatter(twitterData, root=0)
+        # twitterData=comm.scatter(twitterData, root=0)
+        partition=comm.scatter(partition,root=0)
     except:
         print('scatter goes wrong.')
         sys.exit(0)
+    twitterPost=readTwitter(file_path2, partition)
     began=time.time()
-    region=countNum(region, twitterData)
+    region=countNum(region, twitterPost)
     countTime = time.time() - began
     print('count region cost time:', countTime)
     try:
