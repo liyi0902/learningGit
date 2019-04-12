@@ -197,7 +197,6 @@ def countNum(region,twitterPost):
 #Order hashtags by numbers for each Grid
 def orderHashtags(region):
     for key in region:
-        # print ('now hashtags are:',region[key]['hashtag'])
         tagList=region[key]['hashtag']
         tagList=sorted(tagList,key=lambda k:k[1],reverse=True)
         region[key]['hashtag']=tagList
@@ -268,7 +267,7 @@ comm=MPI.COMM_WORLD
 comm_rank=comm.Get_rank()
 comm_size=comm.Get_size()
 file_path='melbGrid.json'
-file_path2='smallTwitter.json'
+file_path2='bigTwitter.json'
 region=extractFromGrid(file_path)
 if comm_size==1:
     twitterPost = extractFromTwitter(file_path2)
