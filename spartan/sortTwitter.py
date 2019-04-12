@@ -271,13 +271,7 @@ comm_size=comm.Get_size()
 file_path='melbGrid.json'
 file_path2='smallTwitter.json'
 region=extractFromGrid(file_path)
-# if comm_size==1:
-#     twitterPost = extractFromTwitter(file_path2)
-#     region=countNum(region, twitterPost)
-#     regionList=sorted(region, key=lambda k:region[k]['twitterNum'],reverse=True)
-#     region = orderHashtags(region)
-#     output(region,regionList)
-# else:
+
 if comm_rank==0:
     partitionList=seperate(file_path2,comm_size)
     partition=np.array_split(partitionList, comm_size)
