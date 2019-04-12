@@ -243,6 +243,8 @@ def rearrangeRegion(region):
                         tags.append(tag)
             i+=1
         region=region[0]
+    else:
+        return region
     return region
 
 def output(region,regionList):
