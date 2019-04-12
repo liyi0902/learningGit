@@ -197,13 +197,11 @@ def rearrangeRegion(region):
                 tags=region[0][key]['hashtag']
                 tagAdd=region[i][key]['hashtag']
                 for tag in tagAdd:
-                    tagHere=False
-                    for eachTag in tags:
-                        if tag[0]==eachTag[0]:
-                            eachTag[1]+=tag[1]
-                            tagHere=True
-                    if not tagHere:
-                        tags.append(tag)
+                    if tag in tags:
+                        tags[tag]+=1
+                    else:
+                        tags[tag]=1
+                region[0][key]['hashtag']=tags
             i+=1
     region=region[0]
     return region
