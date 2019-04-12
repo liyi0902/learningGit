@@ -319,6 +319,7 @@ if comm_size==1:
 else:
     if comm_rank==0:
         partition=seperate(file_path2,comm_size)
+        print (len(partition))
         # twitterPost=extractFromTwitter(file_path2)
         # readTime=time.time()-start
         # print ('read time is:',readTime)
