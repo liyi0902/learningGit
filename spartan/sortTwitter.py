@@ -34,7 +34,7 @@ def readTwitter(path,partition):
         while True:
             if f.tell()>=partition[0]+partition[1]:
                 break
-            line=f.readline()
+            line=f.readline().encode('utf8')
             twitterInfo=dealTwitter(line)
             if twitterInfo:
                 twitterPost.append(twitterInfo)
