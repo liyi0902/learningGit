@@ -87,45 +87,10 @@ def extractFromGrid(file_path):
         region[property.encode('utf8')]={}
         region[property.encode('utf8')]['coordinate']=coordinate
         region[property.encode('utf8')]['twitterNum']=0
-        region[property.encode('utf8')]['hashtag']=[]
+        region[property.encode('utf8')]['hashtag']={}
         region[property.encode('utf8')]['tagSum']=0
     #print region
     return region
-
-#now this function is just used for 1 core 1 task:
-def extractFromTwitter(file_path):
-    #data structure example:[[[coordinates],[hashtages],[areaId]],....]
-    # read tinyTwitter.json
-    twitterPost=[]
-    with open(file_path2,encoding='utf-8') as f2:
-        while True:
-            lines=f2.readlines(200000)
-            if not lines:
-                break
-            for line in lines:
-                goodData=False
-                if line[0] == '{' and line[-2] == '}' and len(line) > 3:
-                    line=line[:-1]
-                    goodData=True
-                elif line[0] == '{' and line[-3]=='}' and len(line)>3:
-                    line=line[:-2]
-                    goodData=True
-                if goodData:
-                    js2 = json.loads(line)
-                    if js2['doc']['coordinates'] == None:
-                        continue
-                    else:
-                        twitteCoordinate = js2['doc']['coordinates']['coordinates']
-                        hashtag = js2['doc']['entities']['hashtags']
-                        hashtags = []
-                        for j in hashtag:
-                            tag = j['text'].encode('utf8')  # some words are not utf-8 type, will cause can-not-output error
-                            tag = tag.decode('utf8')  # change tytes type to str
-                            tag = tag.lower()  # charactor insensitive
-                            tag = '#' + tag
-                            hashtags.append(tag)
-                        twitterPost.append([twitteCoordinate, hashtags, None])
-    return twitterPost
 
 def countNum(region,twitterPost):
     for entry in twitterPost:
@@ -185,24 +150,22 @@ def countNum(region,twitterPost):
                 # print ('twitter id equals region id')
                 region[key]['twitterNum']+=1
                 for tag in hashtags:
-                    isExist=0
-                    hashRecord=region[key]['hashtag']
-                    for tagRecord in region[key]['hashtag']:
-                        if tag==tagRecord[0]:
-                            tagRecord[1]+=1
-                            isExist=1
-                    if isExist==0:
-                        region[key]['hashtag'].append([tag,1])
-                    region[key]['tagSum']+=1
+                    if tag in region[key]['hashtag']:
+                        region[key]['hashtag'][tag]+=1
+                    else:
+                        region[key]['hashtag'][tag]=1
     return region
 
 #Order hashtags by numbers for each Grid
 def orderHashtags(region):
+    tagOrder={}
     for key in region:
-        tagList=region[key]['hashtag']
-        tagList=sorted(tagList,key=lambda k:k[1],reverse=True)
-        region[key]['hashtag']=tagList
-    return region
+        tagdict=region[key]['hashtag']
+        tagRank=sorted(tagdict,key=lambda k:tagdict[k],reverse=True)
+        tagOrder[key]=tagRank
+        # print (tagOrder)
+        # region[key]['hashtag']=tagList
+    return tagOrder
 
 #the object to be scattered needs to be the same size of processor size
 #divide twitter to de same size as size of mpi processors
@@ -245,14 +208,15 @@ def rearrangeRegion(region):
     region=region[0]
     return region
 
-def output(region,regionList):
+def output(region,regionList,tagOrder):
     print(u'Grid ranking by post decending:')
     for entry in regionList:
         print('%s: %d posts,'%(entry,region[entry]['twitterNum']))
     print()
     print('Top 5 hashtags for each Grid:')
     for entry in regionList:
-        tags=region[entry]['hashtag'][:5]
+        # tags=region[entry]['hashtag'][:5]
+        tags=tagOrder[entry][:5]
         if len(tags)==0:
             print('%s:'%(entry))
         else:
@@ -260,9 +224,9 @@ def output(region,regionList):
             i=0
             while i<len(tags):
                 if i==len(tags)-1:
-                    print('(%s, %d))'%(tags[i][0].encode('utf8'),tags[i][1]))
+                    print('(%s, %d))'%(tags[i].encode('utf8'),region[entry]['hashtag'][tags[i]]))
                 else:
-                    print('(%s, %d),'%(tags[i][0].encode('utf8'),tags[i][1]),end='')
+                    print('(%s, %d),'%(tags[i].encode('utf8'),region[entry]['hashtag'][tags[i]]),end='')
                 i+=1
 start=time.time()
 comm=MPI.COMM_WORLD
@@ -295,6 +259,6 @@ except:
 if comm_rank==0:
     region=rearrangeRegion(region)
     regionList=sorted(region, key=lambda k:region[k]['twitterNum'],reverse=True)
-    region=orderHashtags(region)
-    output(region,regionList)
+    tagOrder=orderHashtags(region)
+    output(region,regionList,tagOrder)
 sys.exit(0)
