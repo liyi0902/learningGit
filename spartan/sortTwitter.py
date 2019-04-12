@@ -200,7 +200,7 @@ def rearrangeRegion(region):
                     if tag in tags:
                         tags[tag]+=1
                     else:
-                        tags[tag]=1
+                        tags[tag]=tagAdd[tag]
                 region[0][key]['hashtag']=tags
             i+=1
     region=region[0]
