@@ -6,6 +6,7 @@ import json
 from mpi4py import MPI
 import time
 import os
+import numpy as np
 
 def seperate(path, mpiSize):
     fileEnd=os.path.getsize(path)
@@ -267,37 +268,38 @@ comm=MPI.COMM_WORLD
 comm_rank=comm.Get_rank()
 comm_size=comm.Get_size()
 file_path='melbGrid.json'
-file_path2='bigTwitter.json'
+file_path2='smallTwitter.json'
 region=extractFromGrid(file_path)
-if comm_size==1:
-    twitterPost = extractFromTwitter(file_path2)
-    region=countNum(region, twitterPost)
-    regionList=sorted(region, key=lambda k:region[k]['twitterNum'],reverse=True)
-    region = orderHashtags(region)
-    output(region,regionList)
+# if comm_size==1:
+#     twitterPost = extractFromTwitter(file_path2)
+#     region=countNum(region, twitterPost)
+#     regionList=sorted(region, key=lambda k:region[k]['twitterNum'],reverse=True)
+#     region = orderHashtags(region)
+#     output(region,regionList)
+# else:
+if comm_rank==0:
+    partitionList=seperate(file_path2,comm_size)
+    partition=np.array_split(partitionList, comm_size)
+    print (len(partition))
 else:
-    if comm_rank==0:
-        partition=seperate(file_path2,comm_size)
-        print (len(partition))
-    else:
-        partition=[]
-    try:
-        partition=comm.scatter(partition,root=0)
-    except:
-        print('scatter goes wrong.')
-        sys.exit(0)
-    start=time.time()
-    twitterPost=readTwitter(file_path2, partition)
-    readTime=time.time()-start
-    region=countNum(region, twitterPost)
-    try:
-        region=comm.gather(region, root=0)
-    except:
-        print('gather goes wrong.')
-        sys.exit(0)
-    if comm_rank==0:
-        region=rearrangeRegion(region)
-        regionList=sorted(region, key=lambda k:region[k]['twitterNum'],reverse=True)
-        region=orderHashtags(region)
-        output(region,regionList)
+    partition=[]
+try:
+    partition=comm.scatter(partition,root=0)
+except:
+    print('scatter goes wrong.')
+    sys.exit(0)
+start=time.time()
+twitterPost=readTwitter(file_path2, partition)
+readTime=time.time()-start
+region=countNum(region, twitterPost)
+try:
+    region=comm.gather(region, root=0)
+except:
+    print('gather goes wrong.')
+    sys.exit(0)
+if comm_rank==0:
+    region=rearrangeRegion(region)
+    regionList=sorted(region, key=lambda k:region[k]['twitterNum'],reverse=True)
+    region=orderHashtags(region)
+    output(region,regionList)
 sys.exit(0)
