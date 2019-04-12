@@ -18,6 +18,7 @@ def seperate(path, mpiSize):
         while True:
             if fileEnd-gridEnd<2*gridSize:
                 partition.append([gridEnd,fileEnd])
+                break
             gridStart=gridEnd
             f.seek(gridSize, 1)
             f.readline()
