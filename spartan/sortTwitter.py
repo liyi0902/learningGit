@@ -300,7 +300,7 @@ comm=MPI.COMM_WORLD
 comm_rank=comm.Get_rank()
 comm_size=comm.Get_size()
 file_path='melbGrid.json'
-file_path2='bigTwitter.json'
+file_path2='smallTwitter.json'
 region=extractFromGrid(file_path)
 # for entry in region:
 #     print (entry)
