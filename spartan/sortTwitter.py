@@ -29,7 +29,7 @@ def seperate(path, mpiSize):
 
 def readTwitter(path,partition):
     twitterPost=[]
-    with open(path, 'rb',encoding='utf8') as f:
+    with open(path, 'rb') as f:
         f.seek(partition[0])
         while True:
             if f.tell()>=partition[0]+partition[1]:
