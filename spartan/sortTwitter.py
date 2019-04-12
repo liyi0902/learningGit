@@ -17,7 +17,7 @@ def seperate(path, mpiSize):
         gridEnd = f.tell()
         while True:
             if fileEnd-gridEnd<2*gridSize:
-                partition.append([gridEnd,fileEnd])
+                partition.append([gridEnd,fileEnd-gridEnd])
                 break
             gridStart=gridEnd
             f.seek(gridSize, 1)
@@ -303,18 +303,18 @@ region=extractFromGrid(file_path)
 #     print (entry)
 if comm_size==1:
     twitterPost = extractFromTwitter(file_path2)
-    readTime=time.time()-start
-    print ('read time is:',readTime)
+    # readTime=time.time()-start
+    # print ('read time is:',readTime)
     region=countNum(region, twitterPost)
-    countTime=time.time()-readTime
-    print('count region cost time:',countTime)
+    # countTime=time.time()-readTime
+    # print('count region cost time:',countTime)
     #region=countHashtags(region, twitterPost)
     regionList=sorted(region, key=lambda k:region[k]['twitterNum'],reverse=True)
-    sortTime=time.time()-countTime
-    print('sort region time is:',sortTime)
+    # sortTime=time.time()-countTime
+    # print('sort region time is:',sortTime)
     region = orderHashtags(region)
-    orderTime=time.time()-sortTime
-    print('order hashtags cost:',orderTime)
+    # orderTime=time.time()-sortTime
+    # print('order hashtags cost:',orderTime)
     output(region,regionList)
 else:
     if comm_rank==0:
@@ -333,10 +333,10 @@ else:
         print('scatter goes wrong.')
         sys.exit(0)
     twitterPost=readTwitter(file_path2, partition)
-    began=time.time()
+    # began=time.time()
     region=countNum(region, twitterPost)
-    countTime = time.time() - began
-    print('count region cost time:', countTime)
+    # countTime = time.time() - began
+    # print('count region cost time:', countTime)
     try:
         region=comm.gather(region, root=0)
     except:
@@ -344,14 +344,14 @@ else:
         sys.exit(0)
     if comm_rank==0:
         region=rearrangeRegion(region)
-        arrangeTime=time.time()-countTime
-        print('rearrange time is:',arrangeTime)
+        # arrangeTime=time.time()-countTime
+        # print('rearrange time is:',arrangeTime)
         # print (len(region))
         regionList=sorted(region, key=lambda k:region[k]['twitterNum'],reverse=True)
-        sortTime = time.time() - arrangeTime
-        print('sort region time is:', sortTime)
+        # sortTime = time.time() - arrangeTime
+        # print('sort region time is:', sortTime)
         region=orderHashtags(region)
-        orderTime = time.time() - sortTime
-        print('order hashtags cost:', orderTime)
+        # orderTime = time.time() - sortTime
+        # print('order hashtags cost:', orderTime)
         output(region,regionList)
 sys.exit(0)
