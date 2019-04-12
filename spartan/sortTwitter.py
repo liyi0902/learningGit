@@ -49,13 +49,9 @@ def dealTwitter(line):
     if line[0] == '{' and line[-2] == '}' and len(line) > 3:
         line = line[:-1]
         goodData = True
-        print('line is good')
     elif line[0] == '{' and line[-1] == '}' and len(line) > 3:
         line = line[:-2]
         goodData = True
-        print('line is good')
-    else:
-        print('line is bad')
     if goodData:
         js2 = json.loads(line)
         if js2['doc']['coordinates'] == None:
