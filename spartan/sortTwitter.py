@@ -199,24 +199,8 @@ def orderHashtags(region):
     for key in region:
         # print ('now hashtags are:',region[key]['hashtag'])
         tagList=region[key]['hashtag']
-        tagList=sorted(tagList,key=lambda k:k[1])
-        region[key]['hashtag']=tagList
-        # if len(tagList)!=0:
-        #     i=0
-        #     while i<len(tagList) and i<5:
-        #         max=tagList[i][1]
-        #         j=i+1
-        #         locate=i
-        #         while j<len(tagList):
-        #             if tagList[j][1]>max:
-        #                 max=tagList[j][1]
-        #                 locate=j
-        #             j+=1
-        #         if locate!=i:
-        #             temp=tagList[locate]
-        #             tagList[locate]=tagList[i]
-        #             tagList[i]=temp
-        #         i+=1
+        tagList=sorted(tagList,key=lambda k:k[1],reverse=True)
+        # region[key]['hashtag']=tagList
     return region
 
 #the object to be scattered needs to be the same size of processor size
