@@ -199,22 +199,24 @@ def orderHashtags(region):
     for key in region:
         # print ('now hashtags are:',region[key]['hashtag'])
         tagList=region[key]['hashtag']
-        if len(tagList)!=0:
-            i=0
-            while i<len(tagList) and i<5:
-                max=tagList[i][1]
-                j=i+1
-                locate=i
-                while j<len(tagList):
-                    if tagList[j][1]>max:
-                        max=tagList[j][1]
-                        locate=j
-                    j+=1
-                if locate!=i:
-                    temp=tagList[locate]
-                    tagList[locate]=tagList[i]
-                    tagList[i]=temp
-                i+=1
+        tagList=tagList.sorted(tagList,key=lambda k:tagList[k][1])
+        region[key]['hashtag']=tagList
+        # if len(tagList)!=0:
+        #     i=0
+        #     while i<len(tagList) and i<5:
+        #         max=tagList[i][1]
+        #         j=i+1
+        #         locate=i
+        #         while j<len(tagList):
+        #             if tagList[j][1]>max:
+        #                 max=tagList[j][1]
+        #                 locate=j
+        #             j+=1
+        #         if locate!=i:
+        #             temp=tagList[locate]
+        #             tagList[locate]=tagList[i]
+        #             tagList[i]=temp
+        #         i+=1
     return region
 
 #the object to be scattered needs to be the same size of processor size
@@ -282,7 +284,7 @@ comm=MPI.COMM_WORLD
 comm_rank=comm.Get_rank()
 comm_size=comm.Get_size()
 file_path='melbGrid.json'
-file_path2='bigTwitter.json'
+file_path2='smallTwitter.json'
 region=extractFromGrid(file_path)
 if comm_size==1:
     twitterPost = extractFromTwitter(file_path2)
