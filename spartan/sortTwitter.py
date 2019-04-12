@@ -36,7 +36,7 @@ def readTwitter(path,partition):
                 break
             line=f.readline().decode('utf8')
             twitterInfo=dealTwitter(line)
-            print(twitterInfo)
+            # print(twitterInfo)
             if twitterInfo:
                 twitterPost.append(twitterInfo)
     return twitterPost
@@ -52,6 +52,7 @@ def dealTwitter(line):
         goodData = True
     if goodData:
         js2 = json.loads(line)
+        print(js2)
         if js2['doc']['coordinates'] == None:
             return None
         else:
