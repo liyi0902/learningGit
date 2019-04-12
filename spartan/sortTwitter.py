@@ -11,7 +11,7 @@ def seperate(path, mpiSize):
     fileEnd=os.path.getsize(path)
     gridSize=fileEnd//mpiSize
     partition=[]
-    with open(path,'rb',encoding='utf8') as f:
+    with open(path,'rb') as f:
         gridEnd = f.tell()
         while True:
             if fileEnd-gridEnd<2*gridSize:
